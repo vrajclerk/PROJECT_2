@@ -1,0 +1,7 @@
+streamlit==1.25.0
+google-generativeai==0.1.0  # Example version, adjust to the version you're using
+tensorflow==2.10.0  # You can adjust this based on compatibility with your project
+numpy==1.23.0
+Pillow==9.5.0  # Pillow is the package name for `PIL`
+opencv-python==4.8.0.74  # For OpenCV
+mtcnn==0.1.1
