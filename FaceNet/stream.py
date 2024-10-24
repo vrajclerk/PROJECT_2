@@ -45,8 +45,9 @@ def scaling(x, scale=1.0):
 # Load the pre-trained model with custom objects
 @st.cache_resource
 def load_trained_model():
+    model_path = os.path.join(os.getcwd(), 'Model', 'facenet_87img_profile_face1.h5')
     model = load_model(
-        './Model/facenet_87img_profile_face1.h5',
+        model_path,
         custom_objects={
             'l2_normalize': l2_normalize,
             'scaling': scaling
