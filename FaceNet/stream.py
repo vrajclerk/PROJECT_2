@@ -24,8 +24,13 @@ st.set_page_config(
 )
 
 # API Key for Google Generative AI (Consider using environment variables for security)
-API_KEY = "AIzaSyCDb_mHYOsaR-99UeKvIyvkqJD9pfHHbWg"
-genai.configure(api_key=API_KEY)
+# API_KEY = "AIzaSyCDb_mHYOsaR-99UeKvIyvkqJD9pfHHbWg"
+# genai.configure(api_key=API_KEY)
+API_KEY = os.getenv("GOOGLE_API_KEY")
+if API_KEY is None:
+    st.error("API key not found! Please set the GOOGLE_API_KEY environment variable.")
+else:
+    genai.configure(api_key=API_KEY)
 
 # Create 'uploads' directory if it doesn't exist
 os.makedirs("uploads", exist_ok=True)
