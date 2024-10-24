@@ -93,7 +93,7 @@ def download_model():
 
 
 # Load the pre-trained model with custom objects
-st.cache_resource
+st.cache_resource.clear()
 def load_trained_model():
     model_path = download_model()  # Ensure model is downloaded or present locally
     model = load_model(
