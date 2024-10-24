@@ -11,6 +11,7 @@ from tensorflow.keras.models import load_model
 import json
 from pathlib import Path
 from mtcnn import MTCNN  # Added MTCNN import
+import requests
 
 # --------------------------- Configuration ---------------------------
 
@@ -42,19 +43,69 @@ def l2_normalize(x, axis=None):
 def scaling(x, scale=1.0):
     return x * scale
 
+def download_file_from_google_drive(file_id, destination):
+    URL = "https://drive.google.com/file/d/1QeyoWs19nE8Xfq6dx8zvNy_StyCbyN_J/view?usp=sharing"
+
+    session = requests.Session()
+
+    response = session.get(URL, params={'id': file_id}, stream=True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = {'id': file_id, 'confirm': token}
+        response = session.get(URL, params=params, stream=True)
+
+    save_response_content(response, destination)
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk:  # filter out keep-alive new chunks
+                f.write(chunk)
+
+def download_model():
+    # Google Drive file ID for your model
+    file_id = "1QeyoWs19nE8Xfq6dx8zvNy_StyCbyN_J"  # Replace with your actual File ID
+    model_dir = os.path.join(os.getcwd(), 'Model')
+    model_path = os.path.join(model_dir, 'facenet_87img_profile_face1.h5')
+
+    # Create directory if it doesn't exist
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+
+    # Download the model if it's not already present
+    if not os.path.exists(model_path):
+        print("Downloading model from Google Drive...")
+        download_file_from_google_drive(file_id, model_path)
+        print("Model downloaded successfully!")
+    else:
+        print("Model already exists locally.")
+
+    return model_path
+
+
 # Load the pre-trained model with custom objects
 @st.cache_resource
 def load_trained_model():
-    model_path = os.path.join(os.getcwd(), 'Model', 'facenet_87img_profile_face1.h5')
+    model_path = download_model()  # Ensure model is downloaded or present locally
     model = load_model(
         model_path,
         custom_objects={
-            'l2_normalize': l2_normalize,
+            'l2_normalize': l2_normalize,  # Custom objects if needed
             'scaling': scaling
         }
     )
     return model
 
+# Usage example
 model = load_trained_model()
 
 # --------------------------- Class Indices ---------------------------
